@@ -1,4 +1,5 @@
 # Google-Trends-REST-APIs
+<<<<<<< HEAD
 
 ## Dataset Information
 
@@ -24,3 +25,5 @@ For detailed schema information, please refer to the following links:
 - [Google Trends Data](https://console.cloud.google.com/marketplace/product/bigquery-public-datasets/google-search-trends?project=triple-silo-282319)
 - [Google Trends - International](https://console.cloud.google.com/marketplace/product/bigquery-public-datasets/google-trends-intl?project=triple-silo-282319)
 - [Google BigQuery documentation](https://cloud.google.com/bigquery/docs)
+=======
+>>>>>>> d3c5180 (first commit)

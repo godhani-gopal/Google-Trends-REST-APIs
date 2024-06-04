@@ -33,6 +33,7 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+<<<<<<< HEAD
 		<dependency>
 			<groupId>com.google.cloud</groupId>
 			<artifactId>google-cloud-bigqueryconnection</artifactId>
@@ -48,12 +49,19 @@
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
 	</dependencies>
+=======
+	</dependencies>
+
+>>>>>>> d3c5180 (first commit)
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+<<<<<<< HEAD
 				<version>${project.parent.version}</version>
+=======
+>>>>>>> d3c5180 (first commit)
 			</plugin>
 		</plugins>
 	</build>
