@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-<<<<<<< HEAD
 import java.nio.file.Path;
 
 @Configuration
@@ -23,22 +22,8 @@ public class GCPConfig {
 
     @Bean
     public BigQuery bigQuery() throws IOException {
-        Path path = Path.of(System.getProperty("user.home") +"/"+ gcpCredentials);
+        Path path = Path.of(System.getProperty("user.home") + "/" + gcpCredentials);
         GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(path.toFile()));
-=======
-
-@Configuration
-public class GCPConfig {
-    @Value("${gcp.project.id}")
-    private String projectId;
-
-    @Value("${gcp.service-account.credentialsFilePath}")
-    private String credentialsFilePath;
-
-    @Bean
-    public BigQuery bigQuery() throws IOException {
-        GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(credentialsFilePath));
->>>>>>> 936544c (get top terms by country name)
         return BigQueryOptions.newBuilder()
                 .setProjectId(projectId)
                 .setCredentials(credentials)

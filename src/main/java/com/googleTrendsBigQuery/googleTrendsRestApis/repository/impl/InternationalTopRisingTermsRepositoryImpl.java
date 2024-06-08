@@ -27,16 +27,22 @@ public class InternationalTopRisingTermsRepositoryImpl implements InternationalT
 
         String query = queryBuilderRepository.getTopRisingTermsInternationalQuery(countryName, limit);
 
-        TableResult result = getQueryResultFromBigQuery(query);
-        List<String> topTerms = new ArrayList<>();
+        if (!query.equals("")) {
+            TableResult result = getQueryResultFromBigQuery(query);
+            System.out.println("queryResponse" + result);
+            List<String> topTerms = new ArrayList<>();
 
-        for (FieldValueList row : result.iterateAll()) {
-            topTerms.add(row.get("term").getStringValue());
+            for (FieldValueList row : result.iterateAll()) {
+                topTerms.add(row.get("term").getStringValue());
+            }
+            return topTerms;
         }
-        return topTerms;
+        return null;
+
     }
 
     private TableResult getQueryResultFromBigQuery(String query) throws InterruptedException {
+        System.out.println("runningQuery ->" + query);
         QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(query).setUseQueryCache(false).build();
         Job queryJob = bigQuery.create(JobInfo.newBuilder(queryConfig).build());
         queryJob = queryJob.waitFor();
@@ -48,7 +54,6 @@ public class InternationalTopRisingTermsRepositoryImpl implements InternationalT
         if (queryJob.getStatus().getError() != null) {
             throw new RuntimeException(queryJob.getStatus().getError().toString());
         }
-
         return queryJob.getQueryResults();
     }
 
