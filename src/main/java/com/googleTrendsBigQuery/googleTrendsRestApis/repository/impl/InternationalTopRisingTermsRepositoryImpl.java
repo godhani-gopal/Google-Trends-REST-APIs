@@ -2,7 +2,7 @@ package com.googleTrendsBigQuery.googleTrendsRestApis.repository.impl;
 
 import com.google.cloud.bigquery.*;
 import com.googleTrendsBigQuery.googleTrendsRestApis.repository.InternationalTopRisingTermsRepository;
-import com.googleTrendsBigQuery.googleTrendsRestApis.repository.QueryRepository;
+import com.googleTrendsBigQuery.googleTrendsRestApis.repository.QueryBuilderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -13,20 +13,30 @@ import java.util.List;
 public class InternationalTopRisingTermsRepositoryImpl implements InternationalTopRisingTermsRepository {
 
     private final BigQuery bigQuery;
-    private final QueryRepository queryRepository;
+    private final QueryBuilderRepository queryBuilderRepository;
 
     @Autowired
     public InternationalTopRisingTermsRepositoryImpl(BigQuery bigQuery,
-                                                     QueryRepository queryRepository) {
+                                                     QueryBuilderRepository queryBuilderRepository) {
         this.bigQuery = bigQuery;
-        this.queryRepository = queryRepository;
+        this.queryBuilderRepository = queryBuilderRepository;
     }
 
     @Override
     public List<String> getTopRisingTermsByCountry(String countryName, int limit) throws InterruptedException {
 
-        String query = queryRepository.getTopRisingTermsByCountryQuery(countryName, limit);
+        String query = queryBuilderRepository.getTopRisingTermsInternationalQuery(countryName, limit);
 
+        TableResult result = getQueryResultFromBigQuery(query);
+        List<String> topTerms = new ArrayList<>();
+
+        for (FieldValueList row : result.iterateAll()) {
+            topTerms.add(row.get("term").getStringValue());
+        }
+        return topTerms;
+    }
+
+    private TableResult getQueryResultFromBigQuery(String query) throws InterruptedException {
         QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(query).setUseQueryCache(false).build();
         Job queryJob = bigQuery.create(JobInfo.newBuilder(queryConfig).build());
         queryJob = queryJob.waitFor();
@@ -39,13 +49,8 @@ public class InternationalTopRisingTermsRepositoryImpl implements InternationalT
             throw new RuntimeException(queryJob.getStatus().getError().toString());
         }
 
-        TableResult result = queryJob.getQueryResults();
-        List<String> topTerms = new ArrayList<>();
-
-        for (FieldValueList row : result.iterateAll()) {
-            topTerms.add(row.get("term").getStringValue());
-        }
-
-        return topTerms;
+        return queryJob.getQueryResults();
     }
+
+
 }
