@@ -17,7 +17,7 @@ public class InternationalTopRisingTermsController {
 
     @GetMapping("/terms/{countryName}")
     public List<String> getTopTerms(@PathVariable(name = "countryName") String countryName,
-                                    @RequestParam(name = "limit",required = false) int limit)
+                                    @RequestParam(name = "limit") int limit)
             throws InterruptedException {
         return internationalTopRisingTermsService.getTopTermsByCountry(countryName, limit);
     }
