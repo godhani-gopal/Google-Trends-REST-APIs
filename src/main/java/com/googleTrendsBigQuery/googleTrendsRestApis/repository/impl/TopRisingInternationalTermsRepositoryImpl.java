@@ -1,7 +1,7 @@
 package com.googleTrendsBigQuery.googleTrendsRestApis.repository.impl;
 
 import com.google.cloud.bigquery.*;
-import com.googleTrendsBigQuery.googleTrendsRestApis.repository.InternationalTopRisingTermsRepository;
+import com.googleTrendsBigQuery.googleTrendsRestApis.repository.TopRisingInternationalTermsRepository;
 import com.googleTrendsBigQuery.googleTrendsRestApis.repository.QueryBuilderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -10,13 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class InternationalTopRisingTermsRepositoryImpl implements InternationalTopRisingTermsRepository {
+public class TopRisingInternationalTermsRepositoryImpl implements TopRisingInternationalTermsRepository {
 
     private final BigQuery bigQuery;
     private final QueryBuilderRepository queryBuilderRepository;
 
     @Autowired
-    public InternationalTopRisingTermsRepositoryImpl(BigQuery bigQuery,
+    public TopRisingInternationalTermsRepositoryImpl(BigQuery bigQuery,
                                                      QueryBuilderRepository queryBuilderRepository) {
         this.bigQuery = bigQuery;
         this.queryBuilderRepository = queryBuilderRepository;
