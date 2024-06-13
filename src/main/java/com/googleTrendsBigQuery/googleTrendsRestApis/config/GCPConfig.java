@@ -29,4 +29,10 @@ public class GCPConfig {
                 .setCredentials(credentials)
                 .build().getService();
     }
+
+    @Bean
+    public BigQueryExecutor bigQueryExecutor(BigQuery bigQuery) {
+        return new BigQueryExecutor(bigQuery);
+    }
+
 }
