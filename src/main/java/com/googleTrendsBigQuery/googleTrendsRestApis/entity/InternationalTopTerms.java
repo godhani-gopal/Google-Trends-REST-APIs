@@ -1,23 +1,30 @@
-package com.googleTrendsBigQuery.googleTrendsRestApis.payload;
+package com.googleTrendsBigQuery.googleTrendsRestApis.entity;
+
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
-import java.util.Date;
 
-public class InternationalTermDetails {
-    String term;
-    LocalDate week;
-    int score;
-    int rank;
-    LocalDate refreshDate;
-    String countryName;
-    String countryCode;
-    String regionName;
-    String regionCode;
+@Entity
+@Table(name = "international_top_terms")
+public class InternationalTopTerms {
 
-    public InternationalTermDetails() {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id;
+    private String term;
+    private LocalDate week;
+    private Integer score;
+    private Integer rank;
+    private LocalDate refreshDate;
+    private String countryName;
+    private String countryCode;
+    private String regionName;
+    private String regionCode;
+
+    public InternationalTopTerms() {
     }
 
-    public InternationalTermDetails(String term, LocalDate week, int score, int rank, LocalDate refreshDate, String countryName, String countryCode, String regionName, String regionCode) {
+    public InternationalTopTerms(String term, LocalDate week, Integer score, Integer rank, LocalDate refreshDate, String countryName, String countryCode, String regionName, String regionCode) {
         this.term = term;
         this.week = week;
         this.score = score;
@@ -45,19 +52,19 @@ public class InternationalTermDetails {
         this.week = week;
     }
 
-    public int getScore() {
+    public Integer getScore() {
         return score;
     }
 
-    public void setScore(int score) {
+    public void setScore(Integer score) {
         this.score = score;
     }
 
-    public int getRank() {
+    public Integer getRank() {
         return rank;
     }
 
-    public void setRank(int rank) {
+    public void setRank(Integer rank) {
         this.rank = rank;
     }
 
@@ -103,6 +110,16 @@ public class InternationalTermDetails {
 
     @Override
     public String toString() {
-        return "InternationalTermDetails{" + "term='" + term + '\'' + ", week='" + week + '\'' + ", score=" + score + ", rank=" + rank + ", refreshDate=" + refreshDate + ", countryName='" + countryName + '\'' + ", countryCode='" + countryCode + '\'' + ", regionName='" + regionName + '\'' + ", regionCode='" + regionCode + '\'' + '}';
+        return "InternationalTermDetails{" +
+                "term='" + term + '\'' +
+                ", week=" + week +
+                ", score=" + score +
+                ", rank=" + rank +
+                ", refreshDate=" + refreshDate +
+                ", countryName='" + countryName + '\'' +
+                ", countryCode='" + countryCode + '\'' +
+                ", regionName='" + regionName + '\'' +
+                ", regionCode='" + regionCode + '\'' +
+                '}';
     }
 }
