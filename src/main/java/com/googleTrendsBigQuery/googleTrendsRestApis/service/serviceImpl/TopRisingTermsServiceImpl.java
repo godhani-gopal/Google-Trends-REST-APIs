@@ -2,12 +2,15 @@ package com.googleTrendsBigQuery.googleTrendsRestApis.service.serviceImpl;
 
 import com.google.cloud.bigquery.FieldValueList;
 import com.googleTrendsBigQuery.googleTrendsRestApis.entity.TopRisingTerms;
+import com.googleTrendsBigQuery.googleTrendsRestApis.exception.ResourceNotFoundException;
 import com.googleTrendsBigQuery.googleTrendsRestApis.repository.BQRepository;
 import com.googleTrendsBigQuery.googleTrendsRestApis.repository.TopRisingTermsRepository;
 import com.googleTrendsBigQuery.googleTrendsRestApis.service.TopRisingTermsService;
 import com.googleTrendsBigQuery.googleTrendsRestApis.util.QueryBuilder;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 
 import static com.googleTrendsBigQuery.googleTrendsRestApis.util.BQFieldValueUtil.*;
 
@@ -48,5 +51,20 @@ public class TopRisingTermsServiceImpl implements TopRisingTermsService {
         topRisingTerms.setWeek(getLocalDateValueOrNull(values, "week"));
         topRisingTerms.setScore(getIntegerValueOrNull(values, "score"));
         return topRisingTerms;
+    }
+
+    @Override
+    public Long saveLatestDataFromBQtoMySQL() {
+        return bqRepository.saveDataFromBQtoMySQL(
+                () -> bqQueryBuilder.loadLatestDataFromTopRisingTermsQuery(this.findLatestWeekValue()),
+                this::mapToTopRisingTerms, ((batch, totalNumberOfSavedRecords) -> {
+                    topRisingTermsRepository.saveAll(batch);
+                    totalNumberOfSavedRecords.addAndGet(batch.size());
+                }));
+    }
+
+    @Override
+    public LocalDate findLatestWeekValue() {
+        return topRisingTermsRepository.findLatestWeekValue().orElseThrow(() -> new ResourceNotFoundException("week", "MAX(week)", "latest week cannot be found"));
     }
 }

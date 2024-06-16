@@ -2,12 +2,16 @@ package com.googleTrendsBigQuery.googleTrendsRestApis.service.serviceImpl;
 
 import com.google.cloud.bigquery.FieldValueList;
 import com.googleTrendsBigQuery.googleTrendsRestApis.entity.InternationalTopRisingTerms;
+import com.googleTrendsBigQuery.googleTrendsRestApis.exception.ResourceNotFoundException;
+import com.googleTrendsBigQuery.googleTrendsRestApis.payload.TermAnalysis;
 import com.googleTrendsBigQuery.googleTrendsRestApis.repository.BQRepository;
 import com.googleTrendsBigQuery.googleTrendsRestApis.repository.InternationalTopRisingTermsRepository;
+import com.googleTrendsBigQuery.googleTrendsRestApis.service.AIService;
 import com.googleTrendsBigQuery.googleTrendsRestApis.service.InternationalTopRisingTermsService;
 import com.googleTrendsBigQuery.googleTrendsRestApis.util.QueryBuilder;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 
 import static com.googleTrendsBigQuery.googleTrendsRestApis.util.BQFieldValueUtil.*;
 
@@ -17,13 +21,13 @@ public class InternationalTopRisingTermsServiceImpl implements InternationalTopR
     BQRepository BQRepository;
     InternationalTopRisingTermsRepository internationalTopRisingTermsRepository;
     QueryBuilder bqQueryBuilder;
+    AIService aiService;
 
-    public InternationalTopRisingTermsServiceImpl(BQRepository BQRepository,
-                                                  InternationalTopRisingTermsRepository internationalTopRisingTermsRepository,
-                                                  @Qualifier("bqQueryBuilder") QueryBuilder bqQueryBuilder) {
+    public InternationalTopRisingTermsServiceImpl(com.googleTrendsBigQuery.googleTrendsRestApis.repository.BQRepository BQRepository, InternationalTopRisingTermsRepository internationalTopRisingTermsRepository, QueryBuilder bqQueryBuilder, AIService aiService) {
         this.BQRepository = BQRepository;
         this.internationalTopRisingTermsRepository = internationalTopRisingTermsRepository;
         this.bqQueryBuilder = bqQueryBuilder;
+        this.aiService = aiService;
     }
 
     @Override
@@ -35,6 +39,18 @@ public class InternationalTopRisingTermsServiceImpl implements InternationalTopR
                     totalNumberOfRecordsSaved.addAndGet(batch.size());
                 });
         return null;
+    }
+
+    @Override
+    public Long saveLatestDataFromBQtoMySQL() {
+        LocalDate latestWeek = findLatestWeekValue();
+
+        return BQRepository.saveDataFromBQtoMySQL(() -> bqQueryBuilder.loadLatestDataFromInternationalTopRisingTermsQuery(latestWeek),
+                this::mapToInternationalTopRisingTerms,
+                (batch, totalNumberOfRecordsSaved) -> {
+                    internationalTopRisingTermsRepository.saveAll(batch);
+                    totalNumberOfRecordsSaved.addAndGet(batch.size());
+                });
     }
 
     private InternationalTopRisingTerms mapToInternationalTopRisingTerms(FieldValueList values) {
@@ -50,5 +66,16 @@ public class InternationalTopRisingTermsServiceImpl implements InternationalTopR
         internationalTopRisingTerms.setRegionName(getStringValueOrNull(values, "region_name"));
         internationalTopRisingTerms.setRegionCode(getStringValueOrNull(values, "region_code"));
         return internationalTopRisingTerms;
+    }
+
+    @Override
+    public LocalDate findLatestWeekValue() {
+        return internationalTopRisingTermsRepository.findLatestWeekValue()
+                .orElseThrow(() -> new ResourceNotFoundException("week", "MAX(week)", "latest week cannot be found"));
+    }
+
+    @Override
+    public TermAnalysis getPredictiveInsights(InternationalTopRisingTerms internationalTopRisingTerms) {
+        return aiService.getAIResults(internationalTopRisingTerms);
     }
 }

@@ -1,4 +1,4 @@
-package com.googleTrendsBigQuery.googleTrendsRestApis.config;
+package com.googleTrendsBigQuery.googleTrendsRestApis.util;
 
 import com.google.cloud.bigquery.*;
 import org.springframework.stereotype.Service;

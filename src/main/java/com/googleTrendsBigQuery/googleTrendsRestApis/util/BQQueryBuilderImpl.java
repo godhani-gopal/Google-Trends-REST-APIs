@@ -113,4 +113,25 @@ public class BQQueryBuilderImpl implements QueryBuilder {
         return "SELECT rank, percent_gain, refresh_date, region_name, term, week, score, country_name, country_code, region_code FROM `bigquery-public-data.google_trends.international_top_rising_terms` ORDER BY week DESC LIMIT 50000;";
     }
 
+    @Override
+    public String loadLatestDataFromTopTermsQuery(LocalDate week) {
+        return "SELECT rank, refresh_date, dma_name, dma_id, term, week, score FROM `bigquery-public-data.google_trends.top_terms` WHERE week > '" + week.toString() + "';";
+    }
+
+    @Override
+    public String loadLatestDataFromTopRisingTermsQuery(LocalDate week) {
+        return "SELECT rank, percent_gain, refresh_date, dma_name, dma_id, term, week, score FROM `bigquery-public-data.google_trends.top_rising_terms` WHERE week > '" + week.toString() + "';";
+    }
+
+    @Override
+    public String loadLatestDataFromInternationalTopTermsQuery(LocalDate week) {
+        return "SELECT rank, refresh_date, region_name, term, week, score, country_name, country_code, region_code FROM `bigquery-public-data.google_trends.international_top_terms` WHERE week > '" + week.toString() + "';";
+    }
+
+    @Override
+    public String loadLatestDataFromInternationalTopRisingTermsQuery(LocalDate week) {
+        return "SELECT rank, percent_gain, refresh_date, region_name, term, week, score, country_name, country_code, region_code FROM `bigquery-public-data.google_trends.international_top_rising_terms` WHERE week > '" + week.toString() + "';";
+    }
+
+
 }
