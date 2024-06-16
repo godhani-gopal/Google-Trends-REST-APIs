@@ -2,7 +2,7 @@ package com.googleTrendsBigQuery.googleTrendsRestApis.repository.impl;
 
 import com.google.cloud.bigquery.FieldValueList;
 import com.google.cloud.bigquery.TableResult;
-import com.googleTrendsBigQuery.googleTrendsRestApis.config.BigQueryExecutor;
+import com.googleTrendsBigQuery.googleTrendsRestApis.util.BigQueryExecutor;
 import com.googleTrendsBigQuery.googleTrendsRestApis.entity.TopRisingTerms;
 import com.googleTrendsBigQuery.googleTrendsRestApis.util.QueryBuilder;
 import com.googleTrendsBigQuery.googleTrendsRestApis.repository.TopRisingTermsRepository;
@@ -68,7 +68,6 @@ public class TopRisingTermsBigQueryRepositoryImpl {
                 results.addAll(batch);
             }
 
-            // Wait for all tasks to complete
             for (Future<Void> future : futures) {
                 try {
                     future.get();
@@ -77,7 +76,6 @@ public class TopRisingTermsBigQueryRepositoryImpl {
                 }
             }
         }
-
         return results;
     }
 

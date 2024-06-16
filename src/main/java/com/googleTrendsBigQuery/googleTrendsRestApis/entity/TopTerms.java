@@ -1,6 +1,10 @@
 package com.googleTrendsBigQuery.googleTrendsRestApis.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
@@ -10,19 +14,42 @@ public class TopTerms {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
+
+    @Column(nullable = false)
+    @NotNull
     private String term;
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @Column(nullable = false)
+    @NotNull
     private LocalDate week;
+
     private Integer score;
+
+    @Min(value = 1)
+    @Max(value = 25)
+    @NotNull
+    @Column(nullable = false)
     private Integer rank;
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @Column(nullable = false)
+    @NotNull
     private LocalDate refreshDate;
+
+    @Column(nullable = false)
+    @NotNull
     private String dmaName;
+
+    @Column(nullable = false)
+    @NotNull
     private String dmaId;
+
 
     public TopTerms() {
     }
 
     public TopTerms(String term, LocalDate week, Integer score, Integer rank, LocalDate refreshDate, String dmaName, String dmaId) {
-        this.id = id;
         this.term = term;
         this.week = week;
         this.score = score;

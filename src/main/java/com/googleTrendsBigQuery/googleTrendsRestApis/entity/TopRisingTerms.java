@@ -1,29 +1,60 @@
 package com.googleTrendsBigQuery.googleTrendsRestApis.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "top_rising_terms")
 public class TopRisingTerms {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
+
+    @Column(nullable = false)
+    @NotNull
     private String term;
+
+    @NotNull
+    @Column(nullable = false)
     private Integer percentGain;
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @Column(nullable = false)
+    @NotNull
     private LocalDate week;
+
     private Integer score;
+
+    @Min(value = 1)
+    @Max(value = 25)
+    @NotNull
+    @Column(nullable = false)
     private Integer rank;
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @Column(nullable = false)
+    @NotNull
     private LocalDate refreshDate;
+
+    @Column(nullable = false)
+    @NotNull
     private String dmaName;
+
+    @Column(nullable = false)
+    @NotNull
     private String dmaId;
+
 
     public TopRisingTerms() {
     }
 
     public TopRisingTerms(String term, Integer percentGain, LocalDate week, Integer score, Integer rank, LocalDate refreshDate, String dmaName, String dmaId) {
-        this.id = id;
         this.term = term;
         this.percentGain = percentGain;
         this.week = week;

@@ -2,7 +2,7 @@ package com.googleTrendsBigQuery.googleTrendsRestApis.repository.impl;
 
 import com.google.cloud.bigquery.FieldValueList;
 import com.google.cloud.bigquery.TableResult;
-import com.googleTrendsBigQuery.googleTrendsRestApis.config.BigQueryExecutor;
+import com.googleTrendsBigQuery.googleTrendsRestApis.util.BigQueryExecutor;
 import com.googleTrendsBigQuery.googleTrendsRestApis.exception.QueryExecutionException;
 import com.googleTrendsBigQuery.googleTrendsRestApis.interfaces.BatchProcessor;
 import com.googleTrendsBigQuery.googleTrendsRestApis.interfaces.EntityMapper;

@@ -3,6 +3,7 @@ package com.googleTrendsBigQuery.googleTrendsRestApis.config;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.BigQueryOptions;
+import com.googleTrendsBigQuery.googleTrendsRestApis.util.BigQueryExecutor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

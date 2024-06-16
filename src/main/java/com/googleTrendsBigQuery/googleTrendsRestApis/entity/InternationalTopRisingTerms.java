@@ -1,6 +1,11 @@
 package com.googleTrendsBigQuery.googleTrendsRestApis.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
@@ -11,22 +16,55 @@ public class InternationalTopRisingTerms {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
+
+    @Column(nullable = false)
+    @NotNull
     private String term;
+
+    @NotNull
+    @Column(nullable = false)
     private Integer percentGain;
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @Column(nullable = false)
+    @NotNull
     private LocalDate week;
+
     private Integer score;
+
+    @Min(value = 1)
+    @Max(value = 25)
+    @NotNull
+    @Column(nullable = false)
     private Integer rank;
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @Column(nullable = false)
+    @NotNull
     private LocalDate refreshDate;
+
+    @Column(nullable = false)
+    @NotNull
+    @Pattern(regexp = "^[a-zA-Z]{2}$", message = "Country code must be exactly two alphabetical characters")
     private String countryName;
+
+    @Column(nullable = false)
+    @NotNull
     private String countryCode;
+
+    @Column(nullable = false)
+    @NotNull
     private String regionName;
+
+    @Column(nullable = false)
+    @NotNull
     private String regionCode;
+
 
     public InternationalTopRisingTerms() {
     }
 
-    public InternationalTopRisingTerms(Long id, String term, Integer percentGain, LocalDate week, Integer score, Integer rank, LocalDate refreshDate, String countryName, String countryCode, String regionName, String regionCode) {
-        this.id = id;
+    public InternationalTopRisingTerms(String term, Integer percentGain, LocalDate week, Integer score, Integer rank, LocalDate refreshDate, String countryName, String countryCode, String regionName, String regionCode) {
         this.term = term;
         this.percentGain = percentGain;
         this.week = week;
@@ -121,5 +159,21 @@ public class InternationalTopRisingTerms {
 
     public void setRegionCode(String regionCode) {
         this.regionCode = regionCode;
+    }
+
+    @Override
+    public String toString() {
+        return "InternationalTopRisingTerms{" +
+                "term='" + term + '\'' +
+                ", percentGain=" + percentGain +
+                ", week=" + week +
+                ", score=" + score +
+                ", rank=" + rank +
+                ", refreshDate=" + refreshDate +
+                ", countryName='" + countryName + '\'' +
+                ", countryCode='" + countryCode + '\'' +
+                ", regionName='" + regionName + '\'' +
+                ", regionCode='" + regionCode + '\'' +
+                '}';
     }
 }

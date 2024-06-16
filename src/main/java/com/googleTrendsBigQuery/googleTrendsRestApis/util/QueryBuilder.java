@@ -21,4 +21,12 @@ public interface QueryBuilder {
     String loadDataFromInternationalTopTermsQuery();
 
     String loadDataFromInternationalTopRisingTermsQuery();
+
+    String loadLatestDataFromTopTermsQuery(LocalDate week);
+
+    String loadLatestDataFromTopRisingTermsQuery(LocalDate week);
+
+    String loadLatestDataFromInternationalTopTermsQuery(LocalDate week);
+
+    String loadLatestDataFromInternationalTopRisingTermsQuery(LocalDate week);
 }
