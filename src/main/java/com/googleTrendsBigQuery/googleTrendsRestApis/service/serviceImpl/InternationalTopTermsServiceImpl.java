@@ -51,7 +51,7 @@ public class InternationalTopTermsServiceImpl implements InternationalTopTermsSe
     }
 
     @Override
-    public Page<InternationalTopTerms> findTerms(String term, LocalDate week, Integer score, Integer rank, LocalDate refreshDate, String countryName, String countryCode, String regionName, String regionCode, Integer numOfTerms, Pageable pageable) {
+    public Page<InternationalTopTerms> getTerms(String term, LocalDate week, Integer score, Integer rank, LocalDate refreshDate, String countryName, String countryCode, String regionName, String regionCode, Integer numOfTerms, Pageable pageable) {
         return internationalTopTermsRepository.findTerms(term, week, score, rank, refreshDate, countryName, countryCode, regionName, regionCode, pageable);
     }
 

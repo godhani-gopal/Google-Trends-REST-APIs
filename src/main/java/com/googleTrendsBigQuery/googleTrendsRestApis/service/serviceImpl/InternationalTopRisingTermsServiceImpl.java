@@ -9,6 +9,9 @@ import com.googleTrendsBigQuery.googleTrendsRestApis.repository.InternationalTop
 import com.googleTrendsBigQuery.googleTrendsRestApis.service.AIService;
 import com.googleTrendsBigQuery.googleTrendsRestApis.service.InternationalTopRisingTermsService;
 import com.googleTrendsBigQuery.googleTrendsRestApis.util.QueryBuilder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -51,6 +54,13 @@ public class InternationalTopRisingTermsServiceImpl implements InternationalTopR
                     internationalTopRisingTermsRepository.saveAll(batch);
                     totalNumberOfRecordsSaved.addAndGet(batch.size());
                 });
+    }
+
+    @Override
+    public PagedModel<InternationalTopRisingTerms> getTerms(String term, Integer percentGain, LocalDate week, Integer score, Integer rank, LocalDate refreshDate, String countryName, String countryCode, String regionName, String regionCode, Integer numOfTerms, Pageable pageable) {
+        Page<InternationalTopRisingTerms> page = internationalTopRisingTermsRepository.findTerms(term, percentGain, week, score, rank, refreshDate, countryName, countryCode, regionName, regionCode, pageable);
+
+        return PagedModel.of(page.getContent(), new PagedModel.PageMetadata(page.getSize(), page.getNumber(), page.getTotalElements(), page.getTotalPages()));
     }
 
     private InternationalTopRisingTerms mapToInternationalTopRisingTerms(FieldValueList values) {
