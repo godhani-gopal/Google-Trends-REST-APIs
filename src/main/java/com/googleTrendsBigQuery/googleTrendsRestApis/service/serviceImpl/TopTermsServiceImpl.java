@@ -1,69 +1,59 @@
 package com.googleTrendsBigQuery.googleTrendsRestApis.service.serviceImpl;
 
-import com.google.cloud.bigquery.FieldValueList;
 import com.googleTrendsBigQuery.googleTrendsRestApis.entity.TopTerms;
 import com.googleTrendsBigQuery.googleTrendsRestApis.exception.ResourceNotFoundException;
-import com.googleTrendsBigQuery.googleTrendsRestApis.repository.BQRepository;
 import com.googleTrendsBigQuery.googleTrendsRestApis.repository.TopTermsRepository;
 import com.googleTrendsBigQuery.googleTrendsRestApis.service.TopTermsService;
-import com.googleTrendsBigQuery.googleTrendsRestApis.util.QueryBuilder;
-import org.springframework.beans.factory.annotation.Qualifier;
+import jakarta.persistence.criteria.Predicate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
-
-import static com.googleTrendsBigQuery.googleTrendsRestApis.util.BQFieldValueUtil.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
-public class TopTermsServiceImpl implements TopTermsService {
+public class TopTermsServiceImpl implements  TopTermsService {
 
-    TopTermsRepository topTermsRepository;
-    BQRepository bqRepository;
-    QueryBuilder bqQueryBuilder;
+    @Autowired
+    private TopTermsRepository topTermsRepository;
 
-    public TopTermsServiceImpl(TopTermsRepository topTermsRepository,
-                               BQRepository bqRepository,
-                               @Qualifier("bqQueryBuilder") QueryBuilder bqQueryBuilder) {
-        this.topTermsRepository = topTermsRepository;
-        this.bqRepository = bqRepository;
-        this.bqQueryBuilder = bqQueryBuilder;
+    @Override
+    public Page<TopTerms> getTopTerms(String dmaName, String dmaId, LocalDate week, Integer rank, Integer score, Pageable pageable) {
+//       this method is like a query its make a query from our given parameter
+        Specification<TopTerms> spec = (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (dmaName != null && !dmaName.isEmpty()) {
+                predicates.add(criteriaBuilder.like(root.get("dmaName"), "%" + dmaName + "%"));
+            }
+            if (dmaId != null && !dmaId.isEmpty()) {
+                predicates.add(criteriaBuilder.equal(root.get("dmaId"), dmaId));
+            }
+            if (week != null) {
+                predicates.add(criteriaBuilder.equal(root.get("week"), week));
+            }
+            if (rank != null) {
+                predicates.add(criteriaBuilder.equal(root.get("rank"), rank));
+            }
+            if (score != null) {
+                predicates.add(criteriaBuilder.equal(root.get("score"), score));
+            }
+            // Combine all predicates with AND operation
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+        Page<TopTerms> result = topTermsRepository.findAll(spec, pageable);
+        if (result == null || result.getTotalElements()==0) {
+            throw new ResourceNotFoundException("TopTerms", "Dma Name", dmaName);
+        }
+        return result;
     }
 
     @Override
     public Long saveDataFromBQtoMySQL() {
-        return bqRepository.saveDataFromBQtoMySQL(
-                bqQueryBuilder::loadDataFromTopTermsQuery,
-                this::mapToTopTerms,
-                (batch, totalNumberOfRecordsSaved) -> {
-                    topTermsRepository.saveAll(batch);
-                    totalNumberOfRecordsSaved.addAndGet(batch.size());
-                });
-    }
-
-    private TopTerms mapToTopTerms(FieldValueList values) {
-        TopTerms topTerms = new TopTerms();
-        topTerms.setRank(getIntegerValueOrNull(values, "rank"));
-        topTerms.setRefreshDate(getLocalDateValueOrNull(values, "refresh_date"));
-        topTerms.setDmaName(getStringValueOrNull(values, "dma_name"));
-        topTerms.setDmaId(getStringValueOrNull(values, "dma_id"));
-        topTerms.setTerm(getStringValueOrNull(values, "term"));
-        topTerms.setWeek(getLocalDateValueOrNull(values, "week"));
-        topTerms.setScore(getIntegerValueOrNull(values, "score"));
-        return topTerms;
-    }
-
-    @Override
-    public Long saveLatestDataFromBQtoMySQL() {
-        return bqRepository.saveDataFromBQtoMySQL(
-                () -> bqQueryBuilder.loadLatestDataFromTopTermsQuery(this.findLatestWeekValue()),
-                this::mapToTopTerms, ((batch, totalNumberOfSavedRecords) -> {
-                    topTermsRepository.saveAll(batch);
-                    totalNumberOfSavedRecords.addAndGet(batch.size());
-                }));
-    }
-
-    @Override
-    public LocalDate findLatestWeekValue() {
-        return topTermsRepository.findLatestWeekValue().orElseThrow(() -> new ResourceNotFoundException("week", "MAX(week)", "latest week cannot be found"));
+        // Your implementation to save data from BigQuery to MySQL
+        return 0L; // Placeholder return value
     }
 }
