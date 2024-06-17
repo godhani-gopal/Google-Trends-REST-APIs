@@ -15,7 +15,6 @@ import java.util.Optional;
 @Repository
 public interface InternationalTopTermsRepository extends JpaRepository<InternationalTopTerms, Long> {
 
-
     @Query("SELECT MAX(itt.week) FROM InternationalTopTerms itt")
     Optional<LocalDate> findLatestWeekValue();
 
@@ -24,9 +23,9 @@ public interface InternationalTopTermsRepository extends JpaRepository<Internati
             "AND (:score IS NULL OR itt.score = :score) " +
             "AND (:rank IS NULL OR itt.rank = :rank) " +
             "AND (:refreshDate IS NULL OR itt.refreshDate = :refreshDate) " +
-            "AND (:countryName IS NULL OR itt.countryName = :countryName) " +
+            "AND (:countryName IS NULL OR lower(itt.countryName) LIKE lower(concat('%',:countryName,'%'))) " +
             "AND (:countryCode IS NULL OR itt.countryCode = :countryCode) " +
-            "AND (:regionName IS NULL OR itt.regionName = :regionName) " +
+            "AND (:regionName IS NULL OR lower(itt.regionName) LIKE lower(concat('%', :regionName,'%'))) " +
             "AND (:regionCode IS NULL OR itt.regionCode = :regionCode) " +
             "AND (:term IS NULL OR lower(itt.term) LIKE lower(concat('%', :term, '%')))")
     Page<InternationalTopTerms> findTerms(

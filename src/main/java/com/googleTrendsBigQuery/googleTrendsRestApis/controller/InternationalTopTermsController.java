@@ -47,7 +47,7 @@ public class InternationalTopTermsController {
             @RequestParam(name = "numOfTerms", required = false) @Min(1) Integer numOfTerms,
             @PageableDefault(size = 10, sort = "week", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        Page<InternationalTopTerms> page = internationalTopTermsService.findTerms(term, week, score, rank, refreshDate, countryName, countryCode, regionName, regionCode, numOfTerms, pageable);
+        Page<InternationalTopTerms> page = internationalTopTermsService.getTerms(term, week, score, rank, refreshDate, countryName, countryCode, regionName, regionCode, numOfTerms, pageable);
 
         return ResponseEntity.ok(PagedModel.of(page.getContent(),
                 new PagedModel.PageMetadata(page.getSize(), page.getNumber(), page.getTotalElements(), page.getTotalPages())));
