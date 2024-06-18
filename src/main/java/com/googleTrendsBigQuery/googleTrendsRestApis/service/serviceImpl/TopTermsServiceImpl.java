@@ -23,6 +23,7 @@ public class TopTermsServiceImpl implements  TopTermsService {
     private TopTermsRepository topTermsRepository;
 
     @Override
+
     public Page<TopTerms> getTopTerms(String dmaName, String dmaId, String parsedWeek, Integer rank, Integer score,Integer page,Integer pageSize, Pageable pageaable) {
 //       this method is like a query its make a query from our given parameter
 
@@ -37,6 +38,7 @@ public class TopTermsServiceImpl implements  TopTermsService {
         // root is access data from entitiy
         // criteriabuilder is make a query for like, and, or in manual
         // purpose of this method is clean code
+
         Specification<TopTerms> spec = (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
