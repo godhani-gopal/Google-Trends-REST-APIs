@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Service
 public interface TopTermsService {
 
-    Page<TopTerms> getTopTerms(String dmaName, String dmaId, LocalDate week, Integer rank, Integer score, Pageable pageable);
+    Page<TopTerms> getTopTerms(String dmaName, String dmaId, String week, Integer rank, Integer score,Integer page,Integer pageSize, Pageable pageable);
 
     Long saveDataFromBQtoMySQL();
 

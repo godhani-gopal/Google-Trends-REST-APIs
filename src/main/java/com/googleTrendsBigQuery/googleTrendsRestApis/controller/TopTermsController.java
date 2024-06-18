@@ -2,9 +2,14 @@ package com.googleTrendsBigQuery.googleTrendsRestApis.controller;
 
 import com.googleTrendsBigQuery.googleTrendsRestApis.repository.TopTermsRepository;
 import com.googleTrendsBigQuery.googleTrendsRestApis.service.TopTermsService;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import com.googleTrendsBigQuery.googleTrendsRestApis.util.DateUtils;
+
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
+import org.springframework.data.domain.PageRequest;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -38,7 +43,7 @@ public class TopTermsController {
     // You can give any parameter any value and also without value this method work its flexible
     @GetMapping
     public ResponseEntity<?> TopTerms(
-            @RequestParam(required = false) String dmaName,
+            @RequestParam(required = false) @Pattern(regexp = "^[a-zA-Z\\s]+$", message = "DMA name must be alphabetical characters") String dmaName ,
             @RequestParam(required = false) String dmaId,
             @RequestParam(required = false) String week,
             @RequestParam(required = false) @Min(value = 1, message = "Rank must be between 1 and 25") @Max(value = 25, message = "Rank must be between 1 and 25") Integer rank,
@@ -48,16 +53,6 @@ public class TopTermsController {
             // Annotating with @Valid ensures validation of request parameters
             @PageableDefault(sort = "rank", direction = Sort.Direction.ASC) Pageable pageable) {
 
-        return null;
-
-        /*
-        This method also makesure date is valid and not in future
-         LocalDate parsedWeek = DateUtils.parseWeek(week);
-         Create custom pageable with default values for page and pageSize
-         Pageable customPageable = PageRequest.of(page, pageSize, pageable.getSort());
-         return ResponseEntity.ok(topTermsService.getTopTerms(dmaName, dmaId, parsedWeek, rank, score, customPageable));
-         */
+        return ResponseEntity.ok(topTermsService.getTopTerms(dmaName, dmaId, week, rank, score,page,pageSize, pageable));
     }
-
-
 }
