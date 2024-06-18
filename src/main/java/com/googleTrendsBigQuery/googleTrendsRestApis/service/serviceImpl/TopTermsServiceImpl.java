@@ -22,7 +22,7 @@ public class TopTermsServiceImpl implements  TopTermsService {
 
     @Override
     public Page<TopTerms> getTopTerms(String dmaName, String dmaId, LocalDate week, Integer rank, Integer score, Pageable pageable) {
-//       this method is like a query its make a query from our given parameter
+    // this method is like a query its make a query from our given parameter
         Specification<TopTerms> spec = (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 

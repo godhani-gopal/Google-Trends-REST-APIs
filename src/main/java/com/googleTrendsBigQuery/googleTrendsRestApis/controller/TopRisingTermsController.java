@@ -1,6 +1,7 @@
 package com.googleTrendsBigQuery.googleTrendsRestApis.controller;
 
 import com.googleTrendsBigQuery.googleTrendsRestApis.service.TopRisingTermsService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +11,7 @@ import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/top-rising-terms")
+@Tag(name = "APIs for US Top Rising Terms")
 public class TopRisingTermsController {
     TopRisingTermsService topRisingTermsService;
 
