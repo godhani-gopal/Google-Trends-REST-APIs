@@ -8,7 +8,6 @@ public class DateUtils {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    // Parses the week string and ensures the date is not in the future
     public static LocalDate parseWeek(String week) {
         if (week == null || week.isEmpty()) {
             return null;

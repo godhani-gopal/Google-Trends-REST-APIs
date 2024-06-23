@@ -21,6 +21,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -93,6 +94,7 @@ public class InternationalTopRisingTermsController {
     @Operation(summary = "Load data from BigQuery to MySQL",
             description = "Loads 50,000 rows from the Google Cloud Platform BigQuery International Top Rising Terms table into a MySQL database hosted on a VPS.")
     @GetMapping("/load-data-from-bigquery")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> loadData() {
         Long totalRecordsSaved = internationalTopRisingTermsService.saveDataFromBQtoMySQL();
         return ResponseEntity.ok("Total " + totalRecordsSaved + "saved successfully.");
@@ -101,6 +103,7 @@ public class InternationalTopRisingTermsController {
     @Operation(summary = "Load latest data from BigQuery to MySQL",
             description = "Finds and saves data from the most recent week in the Google Cloud Platform BigQuery International Top Rising Terms table to a MySQL database hosted on a VPS, only if the week value is later than the latest existing week in MySQL.")
     @GetMapping("/load-data-from-bigquery/latest")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> loadLatestData() {
         Long totalRecordsSaved = internationalTopRisingTermsService.saveLatestDataFromBQtoMySQL();
         return ResponseEntity.ok("Total " + totalRecordsSaved + "added.");

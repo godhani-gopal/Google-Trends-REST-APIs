@@ -132,6 +132,4 @@ public class BQQueryBuilderImpl implements QueryBuilder {
     public String loadLatestDataFromInternationalTopRisingTermsQuery(LocalDate week) {
         return "SELECT rank, percent_gain, refresh_date, region_name, term, week, score, country_name, country_code, region_code FROM `bigquery-public-data.google_trends.international_top_rising_terms` WHERE week > '" + week.toString() + "';";
     }
-
-
 }

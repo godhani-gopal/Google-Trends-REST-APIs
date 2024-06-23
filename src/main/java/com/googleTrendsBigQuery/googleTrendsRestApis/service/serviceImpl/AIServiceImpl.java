@@ -3,10 +3,12 @@ package com.googleTrendsBigQuery.googleTrendsRestApis.service.serviceImpl;
 import com.google.gson.Gson;
 import com.googleTrendsBigQuery.googleTrendsRestApis.payload.TermAnalysis;
 import com.googleTrendsBigQuery.googleTrendsRestApis.service.AIService;
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
 @Service
+@Hidden
 public class AIServiceImpl implements AIService {
 
     private final ChatClient chatClient;

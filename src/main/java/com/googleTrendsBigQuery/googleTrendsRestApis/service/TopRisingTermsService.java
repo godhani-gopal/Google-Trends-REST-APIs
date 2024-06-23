@@ -14,7 +14,6 @@ public interface TopRisingTermsService {
 
     LocalDate findLatestWeekValue();
 
-
     Page<?> getTopTerms(
                         String term,
                         String dmaName,
@@ -24,5 +23,4 @@ public interface TopRisingTermsService {
                         Integer score,
                         Integer percentGain,
                         Pageable pageable);
-
 }

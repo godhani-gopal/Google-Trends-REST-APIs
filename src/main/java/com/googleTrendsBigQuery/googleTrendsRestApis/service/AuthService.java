@@ -3,10 +3,9 @@ package com.googleTrendsBigQuery.googleTrendsRestApis.service;
 import org.springframework.stereotype.Service;
 
 @Service
-public interface LogInService {
+public interface AuthService {
 
-
-    String getOauthAccessTokenGoogle(String code);
+    String getJwtToken(String code);
 
     String getProfileDetailsGoogle(String accessToken);
 }
