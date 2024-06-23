@@ -18,6 +18,6 @@ public interface TopTermsService {
                         Pageable pageable);
 
     Long saveDataFromBQtoMySQL();
-    TermAnalysis getPredictiveInsights(Object internationalTopRisingTerms);
 
+    TermAnalysis getPredictiveInsights(Object internationalTopRisingTerms);
 }

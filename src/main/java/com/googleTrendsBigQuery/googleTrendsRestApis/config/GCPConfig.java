@@ -1,5 +1,8 @@
 package com.googleTrendsBigQuery.googleTrendsRestApis.config;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.BigQueryOptions;
@@ -11,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Collections;
 
 @Configuration
 public class GCPConfig {
@@ -20,6 +24,9 @@ public class GCPConfig {
 
     @Value("${gcp.service-account.credentials}")
     private String gcpCredentials;
+
+    @Value("${spring.security.oauth2.client.registration.google.client-id}")
+    private String clientId;
 
     @Bean
     public BigQuery bigQuery() throws IOException {
@@ -34,6 +41,13 @@ public class GCPConfig {
     @Bean
     public BigQueryExecutor bigQueryExecutor(BigQuery bigQuery) {
         return new BigQueryExecutor(bigQuery);
+    }
+
+    @Bean
+    public GoogleIdTokenVerifier googleIdTokenVerifier() {
+        return new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), GsonFactory.getDefaultInstance())
+                .setAudience(Collections.singletonList(clientId))
+                .build();
     }
 
 }

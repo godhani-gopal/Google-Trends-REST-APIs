@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.nio.file.AccessDeniedException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,6 +57,23 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(new ErrorDetails(new Date(), ex.getMessage(), ex.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ErrorDetails> handleAllExceptions(AuthorizationDeniedException exception, WebRequest webRequest) {
+        return new ResponseEntity<>(
+                new ErrorDetails(new Date(),
+                        exception.getMessage(),
+                        webRequest.getDescription(false)),
+                HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorDetails> handleAllExceptions(AccessDeniedException exception, WebRequest webRequest) {
+        return new ResponseEntity<>(
+                new ErrorDetails(new Date(),
+                        exception.getMessage(),
+                        webRequest.getDescription(false)),
+                HttpStatus.FORBIDDEN);
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDetails> handleAllExceptions(Exception exception, WebRequest webRequest) {
