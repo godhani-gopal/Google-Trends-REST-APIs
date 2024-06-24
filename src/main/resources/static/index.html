@@ -1,49 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Sign-In</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Google Sign-In</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+            }
+            h1 {
+                font-size: 3.5em;
+                margin: 50px;
+            }
+            .container {
+                text-align: center;
+            }
 
-        .container {
-            text-align: center;
-        }
+            .google-signin-btn {
+                display: inline-block;
+                background-color: #4285F4;
+                color: white;
+                text-decoration: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                transition: background-color 0.3s ease;
+                font-size: 16px;
+                border: 1px solid #4285F4;
+            }
 
-        .google-signin-btn {
-            display: inline-block;
-            background-color: #4285F4;
-            color: white;
-            text-decoration: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-            font-size: 16px;
-            border: 1px solid #4285F4;
-        }
+            .logo {
+                max-width: 500px;
+                height: auto;
+                box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+                border-radius: 15px;
+            }
 
-        .google-signin-btn:hover {
-            background-color: #3367D6;
-            border-color: #3367D6;
-        }
-    </style>
-</head>
-<body>
-<div class="container">
-    <h2>Sign in with Google</h2>
-    <p>Click the button below to sign in using your Google account.</p>
-    <a class="google-signin-btn" href="https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=http://localhost:8080/grantcode&response_type=code&client_id=111287039659-lsidg172qgsgj407ki38dgg2j5min0gc.apps.googleusercontent.com&scope=https://www.googleapis.com/auth/userinfo.email+https://www.googleapis.com/auth/userinfo.profile+openid&access_type=offline">
-        Sign in with Google
-    </a>
-</div>
-</body>
+            .google-signin-btn:hover {
+                background-color: #3367D6;
+                border-color: #3367D6;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <img src="https://www.dignited.com/wp-content/uploads/2020/03/Google-doodle.png" alt="Logo" class="logo">
+
+            <!--    https://live.staticflickr.com/3059/2568436053_a9734f5d0d_b.jpg-->
+            <h1>Google Trends REST APIs</h1>
+            <h2>Sign in with Google</h2>
+            <p>Click the button below to sign in using your Google account.</p>
+            <a class="google-signin-btn"
+               href="https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=http://localhost:8080/grantcode&response_type=code&client_id=111287039659-lsidg172qgsgj407ki38dgg2j5min0gc.apps.googleusercontent.com&scope=https://www.googleapis.com/auth/userinfo.email+https://www.googleapis.com/auth/userinfo.profile+openid&access_type=offline">
+                Sign in with Google
+            </a>
+        </div>
+    </body>
 </html>
