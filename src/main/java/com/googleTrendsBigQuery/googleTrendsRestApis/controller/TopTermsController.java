@@ -38,6 +38,13 @@ public class TopTermsController {
         this.topTermsRepository = topTermsRepository;
     }
 
+    @Operation(summary = "Load Data from BigQuery",
+            description = "Loads data from BigQuery and saves it to MySQL. Only accessible to users with the ROLE_ADMIN role.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Data loaded successfully"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - You don't have permission to access this resource"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error")
+    })
     @PostMapping("/load-data-from-bigquery")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> loadData() {
@@ -45,12 +52,20 @@ public class TopTermsController {
         return ResponseEntity.ok("Total " + totalRecordsSaved + " records saved successfully.");
     }
 
+    @Operation(summary = "Load Latest Data from BigQuery",
+            description = "Loads the latest data from BigQuery and saves it to MySQL. Only accessible to users with the ROLE_ADMIN role.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Latest data loaded successfully"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - You don't have permission to access this resource"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error")
+    })
     @PostMapping("/load-data-from-bigquery/latest")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> loadLatestData() {
         Long totalRecordsSaved = topTermsService.saveLatestDataFromBQtoMySQL();
         return ResponseEntity.ok("Total " + totalRecordsSaved + " records added successfully.");
     }
+
 
     @Operation(summary = "Get Top USA Terms Data", description = "Fetches top terms for the USA based on the provided query parameters.")
     @ApiResponses(value = {

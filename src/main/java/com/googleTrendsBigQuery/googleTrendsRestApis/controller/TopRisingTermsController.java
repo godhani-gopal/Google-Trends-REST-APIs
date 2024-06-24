@@ -37,6 +37,13 @@ public class TopRisingTermsController {
         this.topRisingTermsService = topRisingTermsService;
     }
 
+    @Operation(summary = "Load Data from BigQuery",
+            description = "Loads data from BigQuery and saves it to MySQL. Only accessible to users with the ROLE_ADMIN role.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Data loaded successfully"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - You don't have permission to access this resource"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error")
+    })
     @PostMapping("/load-data-from-bigquery")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> loadData() {
@@ -44,6 +51,13 @@ public class TopRisingTermsController {
         return ResponseEntity.ok("Total " + totalRecordsSaved + " records saved successfully.");
     }
 
+    @Operation(summary = "Load Latest Data from BigQuery",
+            description = "Loads the latest data from BigQuery and saves it to MySQL. Only accessible to users with the ROLE_ADMIN role.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Latest data loaded successfully"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - You don't have permission to access this resource"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error")
+    })
     @PostMapping("/load-data-from-bigquery/latest")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> loadLatestData() {
@@ -51,10 +65,18 @@ public class TopRisingTermsController {
         return ResponseEntity.ok("Total " + totalRecordsSaved + " records added.");
     }
 
+    @Operation(summary = "Find Latest Week Value",
+            description = "Retrieves the latest week value.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Latest week value retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Not Found - The latest week value could not be found"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error")
+    })
     @GetMapping("/latest-week")
     public ResponseEntity<LocalDate> findLatestWeekValue() {
         return ResponseEntity.ok(topRisingTermsService.findLatestWeekValue());
     }
+
 
     @Operation(summary = "Get Rising Terms Data", description = "Fetches top rising terms in the USA based on the provided query parameters.")
     @ApiResponses(value = {
@@ -101,6 +123,14 @@ public class TopRisingTermsController {
         return ResponseEntity.ok(topRisingTermsService.getTopRisingTerms(term, dmaName, dmaId, week, rank, score, percentGain, customPageable));
     }
 
+    @Operation(summary = "Get predictive insights from OpenAI's ChatGPT",
+            description = "Get predictive and analytical insights on the provided top rising terms data by processing it through OpenAI's ChatGPT model.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful retrieval of predictive insights",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TermAnalysis.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request format or parameters")
+    })
     @GetMapping("/predictive-insights")
     public TermAnalysis getPredictiveInsights(@RequestBody TopRisingTerms topRisingTerms) {
         return topRisingTermsService.getPredictiveInsights(topRisingTerms);
