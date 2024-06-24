@@ -18,6 +18,7 @@ public interface TopRisingTermsRepository extends JpaRepository<TopRisingTerms, 
 
     @Query("SELECT MAX(tst.week) from TopRisingTerms tst")
     Optional<LocalDate> findLatestWeekValue();
+
     @Query("SELECT t FROM TopRisingTerms t WHERE t.week = :week OR t.week = (SELECT MIN(t2.week) FROM TopRisingTerms t2 WHERE t2.week >= :week)")
     List<TopRisingTerms> findByNearestWeek(@Param("week") LocalDate week, Pageable pageable);
 }

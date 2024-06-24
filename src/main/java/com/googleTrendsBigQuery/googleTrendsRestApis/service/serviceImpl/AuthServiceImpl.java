@@ -20,6 +20,6 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public String getProfileDetailsGoogle(String accessToken) {
-        return googleJwtProvider.getProfileDetailsGoogle(accessToken);
+        return googleJwtProvider.getGoogleProfileDetails(accessToken);
     }
 }

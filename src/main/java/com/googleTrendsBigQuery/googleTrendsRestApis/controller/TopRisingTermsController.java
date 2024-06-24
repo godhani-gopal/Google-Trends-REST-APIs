@@ -1,6 +1,7 @@
 package com.googleTrendsBigQuery.googleTrendsRestApis.controller;
 
 import com.googleTrendsBigQuery.googleTrendsRestApis.entity.TopRisingTerms;
+import com.googleTrendsBigQuery.googleTrendsRestApis.payload.TermAnalysis;
 import com.googleTrendsBigQuery.googleTrendsRestApis.service.TopRisingTermsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,10 +21,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
@@ -39,14 +37,14 @@ public class TopRisingTermsController {
         this.topRisingTermsService = topRisingTermsService;
     }
 
-    @GetMapping("/load-data-from-bigquery")
+    @PostMapping("/load-data-from-bigquery")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> loadData() {
         Long totalRecordsSaved = topRisingTermsService.saveDataFromBQtoMySQL();
         return ResponseEntity.ok("Total " + totalRecordsSaved + " records saved successfully.");
     }
 
-    @GetMapping("/load-data-from-bigquery/latest")
+    @PostMapping("/load-data-from-bigquery/latest")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> loadLatestData() {
         Long totalRecordsSaved = topRisingTermsService.saveLatestDataFromBQtoMySQL();
@@ -100,6 +98,11 @@ public class TopRisingTermsController {
             @PageableDefault(sort = "rank", direction = Sort.Direction.ASC) Pageable pageable) {
 
         Pageable customPageable = PageRequest.of(page, pageSize, pageable.getSort());
-        return ResponseEntity.ok(topRisingTermsService.getTopTerms(term, dmaName, dmaId, week, rank, score, percentGain, customPageable));
+        return ResponseEntity.ok(topRisingTermsService.getTopRisingTerms(term, dmaName, dmaId, week, rank, score, percentGain, customPageable));
+    }
+
+    @GetMapping("/predictive-insights")
+    public TermAnalysis getPredictiveInsights(@RequestBody TopRisingTerms topRisingTerms) {
+        return topRisingTermsService.getPredictiveInsights(topRisingTerms);
     }
 }
