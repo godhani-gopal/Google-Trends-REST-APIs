@@ -9,11 +9,15 @@ import com.googleTrendsBigQuery.googleTrendsRestApis.repository.InternationalTop
 import com.googleTrendsBigQuery.googleTrendsRestApis.service.AIService;
 import com.googleTrendsBigQuery.googleTrendsRestApis.service.InternationalTopTermsService;
 import com.googleTrendsBigQuery.googleTrendsRestApis.util.QueryBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.googleTrendsBigQuery.googleTrendsRestApis.util.BQFieldValueUtil.*;
@@ -21,6 +25,7 @@ import static com.googleTrendsBigQuery.googleTrendsRestApis.util.BQFieldValueUti
 @Service
 public class InternationalTopTermsServiceImpl implements InternationalTopTermsService {
 
+    private static final Logger logger = LoggerFactory.getLogger(InternationalTopTermsServiceImpl.class);
     QueryBuilder bqQueryBuilder;
     InternationalTopTermsRepository internationalTopTermsRepository;
     BQRepository bqRepository;
@@ -35,19 +40,29 @@ public class InternationalTopTermsServiceImpl implements InternationalTopTermsSe
 
     @Override
     public Long saveDataFromBQtoMySQL() {
-        return bqRepository.saveDataFromBQtoMySQL(
-                bqQueryBuilder::loadDataFromInternationalTopTermsQuery,
-                this::mapToInternationalTopTerms,
-                (batch, totalNumberOfRecordsSaved) -> {
-                    internationalTopTermsRepository.saveAll(batch);
-                    totalNumberOfRecordsSaved.addAndGet(batch.size());
-                });
+        try {
+            Long totalRecords = bqRepository.saveDataFromBQtoMySQL(
+                    bqQueryBuilder::loadDataFromInternationalTopTermsQuery,
+                    this::mapToInternationalTopTerms,
+                    (batch, totalNumberOfRecordsSaved) -> {
+                        internationalTopTermsRepository.saveAll(batch);
+                        totalNumberOfRecordsSaved.addAndGet(batch.size());
+                    });
+            logger.info("Total {} records of InternationalTopRisingTerms saved in database.", totalRecords);
+            return totalRecords;
+        } catch (Exception e) {
+            logger.error("Error in saveDataFromBQtoMySQL {}", logger.getClass().getName(), e);
+        }
+        return null;
     }
 
     @Override
     public LocalDate findLatestWeekValue() {
         return internationalTopTermsRepository.findLatestWeekValue()
-                .orElseThrow(() -> new ResourceNotFoundException("week", "MAX(week)", "latest week cannot be found"));
+                .orElseThrow(() -> {
+                    logger.error("Error getting latest week from MySQL DB.");
+                    return new ResourceNotFoundException("week", "MAX(week)", "latest week cannot be found");
+                });
     }
 
     @Override
@@ -61,14 +76,25 @@ public class InternationalTopTermsServiceImpl implements InternationalTopTermsSe
     }
 
     @Override
+    @Scheduled(cron = "0 0 0 2 * ?", zone = "UTC")
     public Long saveLatestDataFromBQtoMySQL() {
-        return bqRepository.saveDataFromBQtoMySQL(
-                () -> bqQueryBuilder.loadLatestDataFromInternationalTopTermsQuery(findLatestWeekValue()),
-                this::mapToInternationalTopTerms,
-                (batch, totalNumberOfRecordsSaved) -> {
-                    internationalTopTermsRepository.saveAll(batch);
-                    totalNumberOfRecordsSaved.addAndGet(batch.size());
-                });
+        try {
+            LocalDate latestWeek = findLatestWeekValue();
+            logger.info("Running scheduled data loading job for InternationalTopRisingTerms for week after {}. Start time {}", latestWeek, LocalDateTime.now());
+
+            Long totalRecords = bqRepository.saveDataFromBQtoMySQL(
+                    () -> bqQueryBuilder.loadLatestDataFromInternationalTopTermsQuery(latestWeek),
+                    this::mapToInternationalTopTerms,
+                    (batch, totalNumberOfRecordsSaved) -> {
+                        internationalTopTermsRepository.saveAll(batch);
+                        totalNumberOfRecordsSaved.addAndGet(batch.size());
+                    });
+            logger.info("Total {} records of InternationalTopTerms added in database.", totalRecords);
+            return totalRecords;
+        } catch (Exception e) {
+            logger.error("Error in saveLatestDataFromBQtoMySQL {}", logger.getClass().getName(), e);
+        }
+        return null;
     }
 
     private InternationalTopTerms mapToInternationalTopTerms(FieldValueList values) {
@@ -89,5 +115,4 @@ public class InternationalTopTermsServiceImpl implements InternationalTopTermsSe
     public TermAnalysis getPredictiveInsights(InternationalTopTerms internationalTopTerms) {
         return aiService.getAIResults(internationalTopTerms);
     }
-
 }

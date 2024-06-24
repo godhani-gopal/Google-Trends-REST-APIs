@@ -38,11 +38,18 @@ public class TopTermsController {
         this.topTermsRepository = topTermsRepository;
     }
 
-    @GetMapping("/load-data-from-bigquery")
+    @PostMapping("/load-data-from-bigquery")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> loadData() {
         Long totalRecordsSaved = topTermsService.saveDataFromBQtoMySQL();
         return ResponseEntity.ok("Total " + totalRecordsSaved + " records saved successfully.");
+    }
+
+    @PostMapping("/load-data-from-bigquery/latest")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<String> loadLatestData() {
+        Long totalRecordsSaved = topTermsService.saveLatestDataFromBQtoMySQL();
+        return ResponseEntity.ok("Total " + totalRecordsSaved + " records added successfully.");
     }
 
     @Operation(summary = "Get Top USA Terms Data", description = "Fetches top terms for the USA based on the provided query parameters.")
@@ -89,7 +96,7 @@ public class TopTermsController {
 
     @Operation(summary = "Get Predictive Insights", description = "Fetches predictive insights based on the provided terms.")
     @GetMapping("/predictive-insights")
-    public TermAnalysis getPredictiveInsights(@RequestBody Object object) {
-        return topTermsService.getPredictiveInsights(object);
+    public TermAnalysis getPredictiveInsights(@RequestBody TopTerms topTerms) {
+        return topTermsService.getPredictiveInsights(topTerms);
     }
 }

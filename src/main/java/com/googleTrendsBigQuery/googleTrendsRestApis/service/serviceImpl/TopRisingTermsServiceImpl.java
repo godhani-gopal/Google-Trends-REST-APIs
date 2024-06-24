@@ -3,19 +3,24 @@ package com.googleTrendsBigQuery.googleTrendsRestApis.service.serviceImpl;
 import com.google.cloud.bigquery.FieldValueList;
 import com.googleTrendsBigQuery.googleTrendsRestApis.entity.TopRisingTerms;
 import com.googleTrendsBigQuery.googleTrendsRestApis.exception.ResourceNotFoundException;
+import com.googleTrendsBigQuery.googleTrendsRestApis.payload.TermAnalysis;
 import com.googleTrendsBigQuery.googleTrendsRestApis.repository.BQRepository;
 import com.googleTrendsBigQuery.googleTrendsRestApis.repository.TopRisingTermsRepository;
+import com.googleTrendsBigQuery.googleTrendsRestApis.service.AIService;
 import com.googleTrendsBigQuery.googleTrendsRestApis.service.TopRisingTermsService;
 import com.googleTrendsBigQuery.googleTrendsRestApis.util.DateUtils;
 import com.googleTrendsBigQuery.googleTrendsRestApis.util.QueryBuilder;
 import jakarta.persistence.criteria.Predicate;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,16 +29,17 @@ import static com.googleTrendsBigQuery.googleTrendsRestApis.util.BQFieldValueUti
 @Service
 public class TopRisingTermsServiceImpl implements TopRisingTermsService {
 
+    private static final Logger logger = LoggerFactory.getLogger(TopRisingTermsServiceImpl.class);
     private final TopRisingTermsRepository topRisingTermsRepository;
     private final BQRepository bqRepository;
     private final QueryBuilder bqQueryBuilder;
+    private final AIService aiService;
 
-    public TopRisingTermsServiceImpl(TopRisingTermsRepository topRisingTermsRepository,
-                                     BQRepository bqRepository,
-                                     @Qualifier("bqQueryBuilder") QueryBuilder bqQueryBuilder) {
+    public TopRisingTermsServiceImpl(TopRisingTermsRepository topRisingTermsRepository, BQRepository bqRepository, QueryBuilder bqQueryBuilder, AIService aiService) {
         this.topRisingTermsRepository = topRisingTermsRepository;
         this.bqRepository = bqRepository;
         this.bqQueryBuilder = bqQueryBuilder;
+        this.aiService = aiService;
     }
 
     @Override
@@ -48,45 +54,64 @@ public class TopRisingTermsServiceImpl implements TopRisingTermsService {
     }
 
     @Override
+    @Scheduled(cron = "0 0 0 3 * ?", zone = "UTC")
     public Long saveLatestDataFromBQtoMySQL() {
-        return bqRepository.saveDataFromBQtoMySQL(
-                () -> bqQueryBuilder.loadLatestDataFromTopRisingTermsQuery(findLatestWeekValue()),
-                this::mapToTopRisingTerms,
-                (batch, totalNumberOfSavedRecords) -> {
-                    topRisingTermsRepository.saveAll(batch);
-                    totalNumberOfSavedRecords.addAndGet(batch.size());
-                });
+        try {
+            LocalDate latestWeek = findLatestWeekValue();
+            logger.info("Running scheduled data loading job for TopRisingTerms for week after {}. Start time {}", latestWeek, LocalDateTime.now());
+            Long totalRecords = bqRepository.saveDataFromBQtoMySQL(
+                    () -> bqQueryBuilder.loadLatestDataFromTopRisingTermsQuery(findLatestWeekValue()),
+                    this::mapToTopRisingTerms,
+                    (batch, totalNumberOfSavedRecords) -> {
+                        topRisingTermsRepository.saveAll(batch);
+                        totalNumberOfSavedRecords.addAndGet(batch.size());
+                    });
+            logger.info("Total {} records of TopRisingTerms saved in database.", totalRecords);
+            return totalRecords;
+        } catch (Exception e) {
+            logger.error("Error in saveLatestDataFromBQtoMySQL {}", logger.getClass().getName(), e);
+        }
+        return null;
     }
 
     @Override
     public LocalDate findLatestWeekValue() {
         return topRisingTermsRepository.findLatestWeekValue()
-                .orElseThrow(() -> new ResourceNotFoundException("week", "MAX(week)", "latest week cannot be found"));
+                .orElseThrow(() -> {
+                    logger.error("Error getting latest week from MySQL DB.");
+                    return new ResourceNotFoundException("week", "MAX(week)", "latest week cannot be found");
+                });
     }
 
     @Override
-    public Page<TopRisingTerms> getTopTerms(String term, String dmaName, String dmaId, String parsedWeek, Integer rank, Integer score, Integer percentGain, Pageable pageable) {
-        LocalDate week = DateUtils.parseWeek(parsedWeek);
+    public Page<TopRisingTerms> getTopRisingTerms(String term, String dmaName, String dmaId, String parsedWeek, Integer rank, Integer score, Integer percentGain, Pageable pageable) {
 
-        Specification<TopRisingTerms> spec = (root, query, criteriaBuilder) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            addPredicate(predicates, criteriaBuilder.like(root.get("term"), "%" + term + "%"), term);
-            addPredicate(predicates, criteriaBuilder.like(root.get("dmaName"), "%" + dmaName + "%"), dmaName);
-            addPredicate(predicates, criteriaBuilder.equal(root.get("dmaId"), dmaId), dmaId);
-            addPredicate(predicates, criteriaBuilder.equal(root.get("week"), week), week);
-            addPredicate(predicates, criteriaBuilder.equal(root.get("rank"), rank), rank);
-            addPredicate(predicates, criteriaBuilder.equal(root.get("score"), score), score);
-            addPredicate(predicates, criteriaBuilder.equal(root.get("percentGain"), percentGain), percentGain);
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-        };
+        try {
+            LocalDate week = DateUtils.parseWeek(parsedWeek);
 
-        Page<TopRisingTerms> result = topRisingTermsRepository.findAll(spec, pageable);
+            Specification<TopRisingTerms> spec = (root, query, criteriaBuilder) -> {
+                List<Predicate> predicates = new ArrayList<>();
+                addPredicate(predicates, criteriaBuilder.like(root.get("term"), "%" + term + "%"), term);
+                addPredicate(predicates, criteriaBuilder.like(root.get("dmaName"), "%" + dmaName + "%"), dmaName);
+                addPredicate(predicates, criteriaBuilder.equal(root.get("dmaId"), dmaId), dmaId);
+                addPredicate(predicates, criteriaBuilder.equal(root.get("week"), week), week);
+                addPredicate(predicates, criteriaBuilder.equal(root.get("rank"), rank), rank);
+                addPredicate(predicates, criteriaBuilder.equal(root.get("score"), score), score);
+                addPredicate(predicates, criteriaBuilder.equal(root.get("percentGain"), percentGain), percentGain);
+                return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+            };
 
-        if (result == null || result.isEmpty()) {
-            throw new ResourceNotFoundException("TopTerms", "No Data Found", dmaName);
+            Page<TopRisingTerms> result = topRisingTermsRepository.findAll(spec, pageable);
+
+            if (result == null || result.isEmpty()) {
+                throw new ResourceNotFoundException("TopTerms", "No Data Found", dmaName);
+            }
+
+            return result;
+        } catch (Exception e) {
+            logger.error("Error in getTopRisingTerms ", e);
         }
-
-        return result;
+        return null;
     }
 
     private void addPredicate(List<Predicate> predicates, Predicate predicate, Object value) {
@@ -106,5 +131,10 @@ public class TopRisingTermsServiceImpl implements TopRisingTermsService {
         topRisingTerms.setWeek(getLocalDateValueOrNull(values, "week"));
         topRisingTerms.setScore(getIntegerValueOrNull(values, "score"));
         return topRisingTerms;
+    }
+
+    @Override
+    public TermAnalysis getPredictiveInsights(TopRisingTerms topRisingTerms) {
+        return aiService.getAIResults(topRisingTerms);
     }
 }
