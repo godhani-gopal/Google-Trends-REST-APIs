@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.googleTrendsBigQuery.googleTrendsRestApis.util.BQFieldValueUtil.*;
 
@@ -79,10 +80,34 @@ public class TopTermsServiceImpl implements TopTermsService {
             predicates.add(predicate);
         }
     }
-
     @Override
     public TermAnalysis getPredictiveInsights(TopTerms topTerms) {
-        return aiService.getAIResults(topTerms);
+        // check if the topTerm exists in the database. use topTermsRepository to check.
+        // return the value if exists, throw exception otherwise
+        // do proper logging
+        logger.info("Checking if the topTerm exists in the database: {}", topTerms);
+
+        boolean existingTerm2 = topTermsRepository.existsByTermAndWeekAndScoreAndRankAndRefreshDateAndDmaNameAndDmaId(
+                topTerms.getTerm(), topTerms.getWeek(), topTerms.getScore(),
+                topTerms.getRank(), topTerms.getRefreshDate(),
+                topTerms.getDmaName(), topTerms.getDmaId());
+
+        // Check if the topTerm exists in the database based on its attributes
+
+
+
+        if (existingTerm2) {
+            logger.info("TopTerm exists in the database: {}", topTerms);
+            // Return the value from AI service
+            TermAnalysis result = aiService.getAIResults(topTerms);
+            logger.info("Returning AI results for topTerm: {}", topTerms);
+            return result;
+        } else {
+            logger.error("TopTerm does not exist in the database: {}", topTerms);
+            // Throw custom exception
+            throw new ResourceNotFoundException("TopTerms", "attributes", topTerms.toString());
+        }
+
     }
 
     @Override

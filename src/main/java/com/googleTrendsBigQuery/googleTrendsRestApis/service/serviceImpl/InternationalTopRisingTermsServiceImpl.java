@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static com.googleTrendsBigQuery.googleTrendsRestApis.util.BQFieldValueUtil.*;
 
@@ -109,7 +110,26 @@ public class InternationalTopRisingTermsServiceImpl implements InternationalTopR
 
     @Override
     public TermAnalysis getPredictiveInsights(InternationalTopRisingTerms internationalTopRisingTerms) {
-        return aiService.getAIResults(internationalTopRisingTerms);
+        logger.info("Checking if the InternationalTopRisingTerms exists in the database: {}", internationalTopRisingTerms);
+
+        boolean exists = internationalTopRisingTermsRepository.existsByTermAndPercentGainAndWeekAndCountryNameAndCountryCodeAndRegionNameAndRegionCode(
+                internationalTopRisingTerms.getTerm(),
+                internationalTopRisingTerms.getPercentGain(),
+                internationalTopRisingTerms.getWeek(),
+                internationalTopRisingTerms.getCountryName(),
+                internationalTopRisingTerms.getCountryCode(),
+                internationalTopRisingTerms.getRegionName(),
+                internationalTopRisingTerms.getRegionCode());
+
+        if (exists) {
+            logger.info("InternationalTopRisingTerms exists in the database: {}", internationalTopRisingTerms);
+            TermAnalysis result = aiService.getAIResults(internationalTopRisingTerms);
+            logger.info("Returning AI results for InternationalTopRisingTerms: {}", internationalTopRisingTerms);
+            return result;
+        } else {
+            logger.error("InternationalTopRisingTerms does not exist in the database: {}", internationalTopRisingTerms);
+            throw new ResourceNotFoundException("InternationalTopRisingTerms", "term, percentGain, week, countryName, countryCode, regionName, regionCode", internationalTopRisingTerms.toString());
+        }
     }
 
 }

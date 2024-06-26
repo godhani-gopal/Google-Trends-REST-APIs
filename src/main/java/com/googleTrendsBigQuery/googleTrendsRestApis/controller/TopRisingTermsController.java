@@ -131,7 +131,7 @@ public class TopRisingTermsController {
                             schema = @Schema(implementation = TermAnalysis.class))),
             @ApiResponse(responseCode = "400", description = "Invalid request format or parameters")
     })
-    @GetMapping("/predictive-insights")
+    @PostMapping("/predictive-insights")
     public TermAnalysis getPredictiveInsights(@RequestBody TopRisingTerms topRisingTerms) {
         return topRisingTermsService.getPredictiveInsights(topRisingTerms);
     }
