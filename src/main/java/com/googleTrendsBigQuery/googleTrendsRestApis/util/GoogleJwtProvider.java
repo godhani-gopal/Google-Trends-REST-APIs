@@ -56,9 +56,8 @@ public class GoogleJwtProvider {
     }
 
     private Set<String> getAdminEmails() {
-       return Stream.of(adminEmails.split(",")).map(String::trim).collect(Collectors.toSet());
+        return Stream.of(adminEmails.split(",")).map(String::trim).collect(Collectors.toSet());
     }
-
 
     public String getOauthIdTokenGoogle(String code) {
         try {
@@ -81,20 +80,18 @@ public class GoogleJwtProvider {
 
             return jsonObject.get("id_token").getAsString();
         } catch (Exception e) {
-            logger.error("Error retrieving token from Google callback request body. ", e);
-            throw new AuthenticationException("Cannot retrieve token: ", e) {
-            };
+            logger.error("Error retrieving token from Google callback request body.", e);
+            throw new AuthenticationException("Cannot retrieve token: ", e) {};
         }
     }
 
     public GoogleIdToken.Payload getJwtPayload(String idTokenString) throws GeneralSecurityException, IOException {
-
         GoogleIdToken idToken = googleIdTokenVerifier.verify(idTokenString);
         if (idToken != null) {
             return idToken.getPayload();
         } else {
-            logger.error("Error retrieving payload from token.");
-            throw new IllegalArgumentException("Invalid ID token.");
+            logger.error("Invalid ID token received.");
+            throw new GeneralSecurityException("Invalid ID token.");
         }
     }
 
@@ -103,7 +100,7 @@ public class GoogleJwtProvider {
         if (idToken != null) {
             return true;
         } else {
-            logger.error("Error validating token.");
+            logger.error("Invalid ID token received during validation.");
             throw new GeneralSecurityException("Invalid ID token.");
         }
     }
@@ -116,7 +113,7 @@ public class GoogleJwtProvider {
 
             return "User: " + name + " (Email: " + email + ")";
         } catch (GeneralSecurityException | IOException | IllegalArgumentException e) {
-            logger.error("Error while running getGoogleProfileDetails ", e);
+            logger.error("Error while retrieving Google profile details.", e);
             throw new RuntimeException("Token verification failed: " + e.getMessage());
         }
     }
@@ -145,8 +142,8 @@ public class GoogleJwtProvider {
                     .disabled(false)
                     .build();
         } catch (Exception e) {
-            logger.error("Error creating or validating UserDetails ", e);
-            throw new RuntimeException("Error creating or validating UserDetails", e);
+            logger.error("Error creating or validating UserDetails.", e);
+            throw new RuntimeException("Error creating or validating UserDetails.", e);
         }
     }
 }
