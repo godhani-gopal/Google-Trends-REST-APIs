@@ -45,4 +45,9 @@ public interface InternationalTopTermsRepository extends JpaRepository<Internati
     @Query("SELECT DISTINCT itt.term FROM InternationalTopTerms itt " +
             " WHERE (:term IS NULL OR lower(itt.term) LIKE lower(concat('%', :term, '%')))")
     List<String> searchTerms(String term);
+    // New method to find by unique attributes
+    boolean existsByTermAndWeekAndScoreAndRankAndRefreshDateAndCountryNameAndCountryCodeAndRegionNameAndRegionCode(
+            String term, LocalDate week, Integer score, Integer rank,
+            LocalDate refreshDate, String countryName, String countryCode,
+            String regionName, String regionCode);
 }

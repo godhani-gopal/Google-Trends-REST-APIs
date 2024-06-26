@@ -21,4 +21,8 @@ public interface TopRisingTermsRepository extends JpaRepository<TopRisingTerms, 
 
     @Query("SELECT t FROM TopRisingTerms t WHERE t.week = :week OR t.week = (SELECT MIN(t2.week) FROM TopRisingTerms t2 WHERE t2.week >= :week)")
     List<TopRisingTerms> findByNearestWeek(@Param("week") LocalDate week, Pageable pageable);
+
+    boolean existsByTermAndWeekAndScoreAndRankAndRefreshDateAndDmaNameAndDmaId(
+            String term, LocalDate week, Integer score, Integer rank,
+            LocalDate refreshDate, String dmaName, String dmaId);
 }

@@ -46,13 +46,13 @@ public class InternationalTopRisingTermsController {
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)})
     @GetMapping("/paginated")
     public ResponseEntity<PagedModel<InternationalTopRisingTerms>> getInternationalTopRisingTermDetails(
-            @Parameter(description = "The human readable identifier for a term in local language", example = "i.e. “Acme Inc”.")
+            @Parameter(description = "The human readable identifier for a term in local language. Example = 'Acme Inc'")
             @RequestParam(name = "term", required = false) String term,
 
-            @Parameter(description = "Percentage gain (rate) at which term rose compared to previous date period", example = "450")
+            @Parameter(description = "Percentage gain (rate) at which term rose compared to previous date period. Example = 450")
             @RequestParam(name = "percentGain", required = false) @Min(0) Integer percentGain,
 
-            @Parameter(description = "First day of the week (ISO format) for the current row’s position in the time series for combination of term, country, region, and score . If the specified date does not exist, the API response will include data from the closest available week in the database.", example = "2024-04-07")
+            @Parameter(description = "First day of the week (ISO format) for the current row’s position in the time series for combination of term, country, region, and score . If the specified date does not exist, the API response will include data from the closest available week in the database. Example = 2024-04-07")
             @RequestParam(name = "week", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate week,
 
             @Parameter(description = "Index from 0-100 that denotes how popular this term was for a country’s region during the current date, relative to the other dates in the same time series for this term (260 weeks = 52 weeks * 5 years")
@@ -61,19 +61,19 @@ public class InternationalTopRisingTermsController {
             @Parameter(description = "Numeric representation of where the term falls in comparison to the other top terms for the day across the globe (e.g. rank of 1-25).")
             @RequestParam(name = "rank", required = false) @Min(1) @Max(25) Integer rank,
 
-            @Parameter(description = "Date when the set of term, country, region, and score combination was added", example = "2024-04-10")
+            @Parameter(description = "Date when the set of term, country, region, and score combination was added. Example = 2024-04-10")
             @RequestParam(name = "refreshDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate refreshDate,
 
-            @Parameter(description = "Full text name of the country.", example = "South Korea")
+            @Parameter(description = "Full text name of the country. Example = South Korea")
             @RequestParam(name = "countryName", required = false) @Pattern(regexp = "^[a-zA-Z\\s]+$", message = "Country name must be alphabetical characters") String countryName,
 
-            @Parameter(description = "The ISO 3166 Alpha-2 country code of a country", example = "KR")
+            @Parameter(description = "The ISO 3166 Alpha-2 country code of a country. Example = KR")
             @RequestParam(name = "countryCode", required = false) @Pattern(regexp = "^[a-zA-Z]{2}$", message = "Country code must be exactly two alphabetical characters") String countryCode,
 
-            @Parameter(description = "Full text name of the region or state in the country", example = "Seoul")
+            @Parameter(description = "Full text name of the region or state in the country. Example = Seoul")
             @RequestParam(name = "regionName", required = false) @Pattern(regexp = "^[a-zA-Z\\s]+$", message = "Region name must be alphabetical characters") String regionName,
 
-            @Parameter(description = "ISO 3166-2 country subdivision code used to identify the region or state in the country", example = "KR-11")
+            @Parameter(description = "ISO 3166-2 country subdivision code used to identify the region or state in the country. Example = KR-11")
             @RequestParam(name = "regionCode", required = false) String regionCode,
 
             @Parameter(description = "Total number of terms to be included in the response")
@@ -81,13 +81,8 @@ public class InternationalTopRisingTermsController {
 
             @Parameter(
                     description = "Pagination and sorting parameters for the result list.",
-                    name = "pageable",
-                    schema = @Schema(implementation = Pageable.class),
-                    example = "page=0&size=10&sort=week,desc",
-                    in = ParameterIn.QUERY
-            )
-            @PageableDefault(size = 10, sort = "week", direction = Sort.Direction.DESC) Pageable pageable
-    ) {
+                    name = "sort", schema = @Schema(type = "string"), in = ParameterIn.QUERY)
+            @PageableDefault(sort = "rank", direction = Sort.Direction.ASC) Pageable pageable){
         return ResponseEntity.ok(internationalTopRisingTermsService.getTerms(term, percentGain, week, score, rank, refreshDate, countryName, countryCode, regionName, regionCode, numOfTerms, pageable));
     }
 
@@ -124,7 +119,7 @@ public class InternationalTopRisingTermsController {
                             schema = @Schema(implementation = TermAnalysis.class))),
             @ApiResponse(responseCode = "400", description = "Invalid request format or parameters")
     })
-    @GetMapping("/predictive-insights")
+    @PostMapping("/predictive-insights")
     public TermAnalysis getPredictiveInsights(@RequestBody InternationalTopRisingTerms internationalTopRisingTerms) {
         return internationalTopRisingTermsService.getPredictiveInsights(internationalTopRisingTerms);
     }

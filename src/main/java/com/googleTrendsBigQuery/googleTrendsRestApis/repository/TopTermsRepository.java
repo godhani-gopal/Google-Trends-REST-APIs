@@ -20,4 +20,23 @@ public interface TopTermsRepository extends JpaRepository<TopTerms, Long>, JpaSp
 
     @Query("SELECT MAX(tt.week) from TopTerms tt")
     Optional<LocalDate> findLatestWeekValue();
+
+    @Query("SELECT t FROM TopTerms t WHERE t.term = :term " +
+            "AND t.dmaName = :dmaName " +
+            "AND t.dmaId = :dmaId " +
+            "AND t.week = :week " +
+            "AND t.rank = :rank " +
+            "AND t.score = :score")
+    Optional<TopTerms> findMatchingTerm(
+            @Param("term") String term,
+            @Param("dmaName") String dmaName,
+            @Param("dmaId") String dmaId,
+            @Param("week") LocalDate week,
+            @Param("rank") Integer rank,
+            @Param("score") Integer score);
+
+    boolean existsByTermAndWeekAndScoreAndRankAndRefreshDateAndDmaNameAndDmaId(
+            String term, LocalDate week, Integer score, Integer rank,
+            LocalDate refreshDate, String dmaName, String dmaId);
+
 }

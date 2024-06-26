@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static com.googleTrendsBigQuery.googleTrendsRestApis.util.BQFieldValueUtil.*;
 
@@ -113,6 +114,26 @@ public class InternationalTopTermsServiceImpl implements InternationalTopTermsSe
 
     @Override
     public TermAnalysis getPredictiveInsights(InternationalTopTerms internationalTopTerms) {
-        return aiService.getAIResults(internationalTopTerms);
+
+            logger.info("Checking if the internationalTopTerm exists in the database: {}", internationalTopTerms);
+
+            boolean exists = internationalTopTermsRepository.existsByTermAndWeekAndScoreAndRankAndRefreshDateAndCountryNameAndCountryCodeAndRegionNameAndRegionCode(
+                    internationalTopTerms.getTerm(), internationalTopTerms.getWeek(), internationalTopTerms.getScore(),
+                    internationalTopTerms.getRank(), internationalTopTerms.getRefreshDate(),
+                    internationalTopTerms.getCountryName(), internationalTopTerms.getCountryCode(),
+                    internationalTopTerms.getRegionName(), internationalTopTerms.getRegionCode());
+
+            if (exists) {
+                logger.info("InternationalTopTerm exists in the database: {}", internationalTopTerms);
+                TermAnalysis result = aiService.getAIResults(internationalTopTerms);
+                logger.info("Returning AI results for internationalTopTerm: {}", internationalTopTerms);
+                return result;
+            } else {
+                logger.error("InternationalTopTerm does not exist in the database: {}", internationalTopTerms);
+                throw new ResourceNotFoundException("InternationalTopTerms", "attributes", internationalTopTerms.toString());
+            }
+
+        }
     }
-}
+
+

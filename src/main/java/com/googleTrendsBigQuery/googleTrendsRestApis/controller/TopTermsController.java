@@ -110,8 +110,9 @@ public class TopTermsController {
     }
 
     @Operation(summary = "Get Predictive Insights", description = "Fetches predictive insights based on the provided terms.")
-    @GetMapping("/predictive-insights")
+    @PostMapping("/predictive-insights")
     public TermAnalysis getPredictiveInsights(@RequestBody TopTerms topTerms) {
+        System.out.println("got request in chatgpt api");
         return topTermsService.getPredictiveInsights(topTerms);
     }
 }

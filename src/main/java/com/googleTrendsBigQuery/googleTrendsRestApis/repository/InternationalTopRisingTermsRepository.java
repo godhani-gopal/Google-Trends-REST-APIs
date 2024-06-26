@@ -43,4 +43,10 @@ public interface InternationalTopRisingTermsRepository extends JpaRepository<Int
             @Param("regionName") String regionName,
             @Param("regionCode") String regionCode,
             Pageable pageable);
+
+    boolean existsByTermAndPercentGainAndWeekAndCountryNameAndCountryCodeAndRegionNameAndRegionCode(
+            String term, Integer percentGain, LocalDate week,
+            String countryName, String countryCode,
+            String regionName, String regionCode);
+
 }

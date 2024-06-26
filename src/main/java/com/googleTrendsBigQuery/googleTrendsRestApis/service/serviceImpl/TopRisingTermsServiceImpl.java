@@ -135,6 +135,22 @@ public class TopRisingTermsServiceImpl implements TopRisingTermsService {
 
     @Override
     public TermAnalysis getPredictiveInsights(TopRisingTerms topRisingTerms) {
-        return aiService.getAIResults(topRisingTerms);
+        logger.info("Checking if the topRisingTerm exists in the database: {}", topRisingTerms);
+
+        boolean exists = topRisingTermsRepository.existsByTermAndWeekAndScoreAndRankAndRefreshDateAndDmaNameAndDmaId(
+                topRisingTerms.getTerm(), topRisingTerms.getWeek(), topRisingTerms.getScore(),
+                topRisingTerms.getRank(), topRisingTerms.getRefreshDate(),
+                topRisingTerms.getDmaName(), topRisingTerms.getDmaId());
+
+        if (exists) {
+            logger.info("TopRisingTerm exists in the database: {}", topRisingTerms);
+            TermAnalysis result = aiService.getAIResults(topRisingTerms);
+            logger.info("Returning AI results for topRisingTerm: {}", topRisingTerms);
+            return result;
+        } else {
+            logger.error("TopRisingTerm does not exist in the database: {}", topRisingTerms);
+            throw new ResourceNotFoundException("TopRisingTerms", "term, dmaId, week", topRisingTerms.toString());
+        }
     }
 }
+

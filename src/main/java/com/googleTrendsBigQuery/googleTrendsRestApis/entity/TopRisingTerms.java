@@ -19,7 +19,6 @@ public class TopRisingTerms {
     @Column(nullable = false)
     @NotNull
     private String term;
-
     @NotNull
     @Column(nullable = false)
     private Integer percentGain;
