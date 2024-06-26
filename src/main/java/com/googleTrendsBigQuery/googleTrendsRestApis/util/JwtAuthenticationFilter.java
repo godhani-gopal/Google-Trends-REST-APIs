@@ -40,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception e) {
-            logger.error("Error retrieving cookies ", e);
+            logger.error("Error retrieving cookies.", e);
         }
 
         try {
@@ -51,9 +51,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (GeneralSecurityException e) {
-            logger.error("Invalid cookie.", e);
-            throw new RuntimeException(e);
+            logger.error("Invalid token: ", e);
         }
+
         filterChain.doFilter(request, response);
     }
 }

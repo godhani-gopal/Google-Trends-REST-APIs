@@ -32,7 +32,7 @@ public class AuthController {
             @ApiResponse(code = 302, message = "Redirect to Swagger UI"),
             @ApiResponse(code = 500, message = "Internal Server Error")
     })
-    @GetMapping(value = {"/oauth2/callback","/grantcode"})
+    @GetMapping(value = {"/oauth2/callback"})
     public ResponseEntity<String> handleAuthentication(
             @ApiParam(value = "Authorization code from Google", required = true)
             @RequestParam("code") String code, HttpServletResponse response) {
